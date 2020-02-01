@@ -29,7 +29,7 @@ push:
   #        ls
   #        cp build/libs/*.jar /app.jar
   - internal/docker-push:
-  #          entrypoint: /runner.sh
+            entrypoint: ./runner.sh
   #          cmd: 0.0.0.0 80
   #          working-dir: $WERCKER_ROOT
   #          tag: $WERCKER_GIT_COMMIT
@@ -57,6 +57,13 @@ deploy:
         code: |
           mkdir $WERCKER_OUTPUT_DIR/kubernetes
           mv *.yaml $WERCKER_OUTPUT_DIR/kubernetes
+    - kubectl:
+        name: delete previous deployment
+        server: $OKE_MASTER
+        token: $OKE_TOKEN
+        insecure-skip-tls-verify: true
+        command: delete -f $WERCKER_OUTPUT_DIR/kubernetes/
+
     # `apply` is a good command to use here, as it'll create Kubernetes entities if they are missing.
     - kubectl:
         name: deploy to kubernetes
