@@ -29,7 +29,7 @@ push:
   #        ls
   #        cp build/libs/*.jar /app.jar
   - internal/docker-push:
-            entrypoint: runner.sh
+            entrypoint: /runner.sh
             cmd: 0.0.0.0 80
             working-dir: $WERCKER_ROOT
             tag: $WERCKER_GIT_COMMIT
