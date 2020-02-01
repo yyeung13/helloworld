@@ -1,0 +1,65 @@
+# docker box definition
+box:
+  id: openjdk:8-jdk-alpine
+  ports:
+    - "80"
+
+# defining the dev pipeline
+#dev:
+#  steps:
+#    # A step that executes `gradle bootRun` command
+#    - script:
+#      name: gradle bootRun
+#      code: |
+#        ./gradlew bootRun
+# Build definition
+build:
+  # The steps that will be executed on build
+  steps:
+    # A step that executes `gradle build` command
+    #- script:
+    #    name: gradle build
+    #    code: |
+    #      ./gradlew build
+push:
+  steps:
+  #- script:
+  #      name: prepare exec
+  #      code: |
+  #        ls
+  #        cp build/libs/*.jar /app.jar
+  - internal/docker-push:
+            entrypoint: runner.sh
+            cmd: 0.0.0.0 80
+            working-dir: $WERCKER_ROOT
+            tag: $WERCKER_GIT_COMMIT
+            ports: "8080"
+            username: $DOCKER_USERNAME
+            password: $DOCKER_PASSWORD
+            repository: $DOCKER_REPO
+            registry: https://iad.ocir.io
+            tag: latest
+deploy:
+    box: python:2.7
+    steps:
+
+    # https://github.com/wercker/step-bash-template
+    # This Wercker step will look for files in our repo with a .template extension.
+    # It will expand any environment variables in those files, then remove the
+    # template extension.
+    - bash-template
+
+    # The step above should leave us with a Kubernetes service and deployment yml files.
+    # We'll create a directory to move them to.
+    - script:
+        name: Prepare Kubernetes files
+        code: |
+          mkdir $WERCKER_OUTPUT_DIR/kubernetes
+          mv spring_rest.yml $WERCKER_OUTPUT_DIR/kubernetes
+    # `apply` is a good command to use here, as it'll create Kubernetes entities if they are missing.
+    - kubectl:
+        name: deploy to kubernetes
+        server: $OKE_MASTER
+        token: $OKE_TOKEN
+        insecure-skip-tls-verify: true
+        command: apply -f $WERCKER_OUTPUT_DIR/kubernetes/
