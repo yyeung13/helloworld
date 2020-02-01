@@ -25,7 +25,7 @@ push:
   steps:
    script:
        name: prepare exec
-        code: |
+       code: |
           ls
   #        cp build/libs/*.jar /app.jar
   - internal/docker-push:
