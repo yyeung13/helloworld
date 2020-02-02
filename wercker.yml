@@ -27,7 +27,7 @@ push:
        name: prepare exec
        code: |
           ls
-  #        cp build/libs/*.jar /app.jar
+
   - internal/docker-push:
             entrypoint: runner.sh
   #          cmd: 0.0.0.0 80
