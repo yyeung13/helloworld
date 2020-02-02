@@ -23,12 +23,12 @@ build:
     #      ./gradlew build
 push:
   steps:
-   - script:
+    - script:
        name: prepare exec
        code: |
           ls
 
-  - internal/docker-push:
+    - internal/docker-push:
             entrypoint: runner.sh
   #          cmd: 0.0.0.0 80
   #          working-dir: $WERCKER_ROOT
